@@ -5,9 +5,10 @@
 # Description --  This script models the teaching hours per academic based on their teaching load.  The data for the model is extracted from the timetabling 
 #  spreadsheet.
 
-###############################################################################################################################################################
+##############################################################################################################################################################
 
 #library(readxl)
+library(xlsx)
 require(xlsx)
 #library(RODBC)
 library(hashmap)
@@ -27,6 +28,85 @@ staffNames <- tAllocation[1]
 
 #get all the teaching allocated staff names 
 allocatedStaffNamesOnTimetable <- timetable[12];
+
+
+#List to hold all the calculated values
+
+#TODO - Find a way to initilize
+staffAllocationMap <-  hashmap("","")
+staffAllocationMap$erase("")
+
+
+# Functions for calculating all the teaching hours 
+
+calculateLectureHours <- function(semester, hours, npar=TRUE,print=TRUE){
+	
+	hourCalc <- 0
+	
+	#cat ("\n calc semester: ", semester, " : hours: ", hours, "\n")
+	
+	if (toString(semester) == "1 & 2"){
+		
+		hourCalc =	(2* hours * 24)/43
+	#	cat ("\n hour calc: ", hourCalc, "\n")
+		return (hourCalc)
+		
+	}else{
+		hourCalc =	(2*hours * 12)/43
+	#	cat ("\n hour calc: ", hourCalc, "\n")
+		return (hourCalc)
+		
+	}
+}
+
+calculateTutorialHours <- function(semester, hours, npar=TRUE,print=TRUE){
+	
+	hourCalc <- 0
+	
+	if (semester == "1 & 2"){		
+		hourCalc <-	(1.5* hours * 24)/43
+	}else{
+		hourCalc <-	(1.5* hours * 12)/43
+	}
+	
+	return (hourCalc)
+}
+
+#TODO - Should take into account the module length, currently only module size
+calculateModuleLeadership <- function(semester, moduleSize, npar=TRUE,print=TRUE){
+		
+	small <- 25
+	medium <- 75
+		
+	#cat ("\n module size: ", moduleSize, "\n")	
+	
+	if (as.numeric(moduleSize) < small) {
+		return (1)
+	}else if ((as.numeric(moduleSize) > small) & (as.numeric(moduleSize) < medium)){
+		return (1.5)
+	}else{
+		return (2)
+	}
+}
+
+
+allocationSummary <- function (){
+    
+    cat ("\n############################### Summary ########################### \n")
+
+
+    keys <- staffAllocationMap$keys()
+    
+    for (key in keys){
+        
+            cat ("staff: ", key, "  ====>  allocation: ", staffAllocationMap$find(key), "\n")
+    }
+    
+    cat ("\n################################################################### \n")
+
+    
+}
+
 
 #TODO -- Not very efficient algorithm, improve the algorith from 0(N^2) to (NLogN) 
 #IMPROVEMENT -- consider using HashMAP
@@ -102,58 +182,21 @@ for (i in 1: nrow (staffNames)){
 	
 	totalAllocation <- totalAllocation + totalModuleLeadership;
  	cat (" Total Allocation time with module leadership for: ",toString(staffNames[i,1]), " is: ", totalAllocation, "\n")
-	totalAllocation <- 0
+    
+    staffAllocationMap$insert(toString(staffNames[i,1]),totalAllocation)
+
+    totalAllocation <- 0
 	totalModuleLeadership <-0
-		
+    
+  		
 }
 
-calculateLectureHours <- function(semester, hours, npar=TRUE,print=TRUE){
-	
-	hourCalc <- 0
-	
-	
-	#cat ("\n calc semester: ", semester, " : hours: ", hours, "\n")
-	
-	if (toString(semester) == "1 & 2"){
-		
-		hourCalc =	(2* hours * 24)/43
-	#	cat ("\n hour calc: ", hourCalc, "\n")
-		return (hourCalc)
-		
-	}else{
-		hourCalc =	(2*hours * 12)/43
-	#	cat ("\n hour calc: ", hourCalc, "\n")
-		return (hourCalc)
-		
-	}
-}
+allocationSummary()
 
-calculateTutorialHours <- function(semester, hours, npar=TRUE,print=TRUE){
-	
-	hourCalc <- 0
-	
-	if (semester == "1 & 2"){		
-		hourCalc <-	(1.5* hours * 24)/43
-	}else{
-		hourCalc <-	(1.5* hours * 12)/43
-	}
-	
-	return (hourCalc)
-}
 
-#TODO - Should take into account the module length, currently only module size
-calculateModuleLeadership <- function(semester, moduleSize, npar=TRUE,print=TRUE){
-		
-	small <- 25
-	medium <- 75
-		
-	#cat ("\n module size: ", moduleSize, "\n")	
-	
-	if (as.numeric(moduleSize) < small) {
-		return (1)
-	}else if ((as.numeric(moduleSize) > small) & (as.numeric(moduleSize) < medium)){
-		return (1.5)
-	}else{
-		return (2)
-	}
-}
+
+
+
+
+
+
