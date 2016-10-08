@@ -13,15 +13,18 @@ require(xlsx)
 #library(RODBC)
 library(hashmap)
 
+
+home.dr<- getwd()
+
 #Set path to the timetable
 setwd("/Users/mufy/Dropbox/teaching/UEL/2015-2016/timetable")
 
 #Change the filename if changes or updated
-file.name <- "CSI 2016-17-v7.xlsx"
+file.name <- "CSI-2016-17-v9-final.xlsx"
 sheet.name <- "ML"
 
 tAllocation <- read.xlsx(file.name, 4, header=FALSE, keepFormulas=FALSE, startRow = 2, endRow =25)
-timetable <- read.xlsx(file.name, 3, header=FALSE, keepFormulas=FALSE, startRow = 2, endRow =172)
+timetable <- read.xlsx(file.name, 3, header=FALSE, keepFormulas=FALSE, startRow = 2, endRow =187)
 
 # Get the current list of staff names 
 staffNames <- tAllocation[1]
@@ -192,6 +195,9 @@ for (i in 1: nrow (staffNames)){
 }
 
 allocationSummary()
+
+#Set the homedirect to the default working directory
+setwd(home.dr)
 
 
 
