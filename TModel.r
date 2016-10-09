@@ -20,7 +20,7 @@ home.dr<- getwd()
 setwd("/Users/mufy/Dropbox/teaching/UEL/2015-2016/timetable")
 
 #Change the filename if changes or updated
-file.name <- "CSI-2016-17-v9-final.xlsx"
+file.name <- "CSI 2016-17-v9-final.xlsx"
 sheet.name <- "ML"
 
 tAllocation <- read.xlsx(file.name, 4, header=FALSE, keepFormulas=FALSE, startRow = 2, endRow =25)
@@ -40,8 +40,7 @@ staffAllocationMap <-  hashmap("","")
 staffAllocationMap$erase("")
 
 
-# Functions for calculating all the teaching hours 
-
+# Function for calculating the teaching hours
 calculateLectureHours <- function(semester, hours, npar=TRUE,print=TRUE){
 	
 	hourCalc <- 0
@@ -62,6 +61,7 @@ calculateLectureHours <- function(semester, hours, npar=TRUE,print=TRUE){
 	}
 }
 
+#Function for calculating the tutorial hours
 calculateTutorialHours <- function(semester, hours, npar=TRUE,print=TRUE){
 	
 	hourCalc <- 0
@@ -75,23 +75,31 @@ calculateTutorialHours <- function(semester, hours, npar=TRUE,print=TRUE){
 	return (hourCalc)
 }
 
+#Function to calculate module leadership hours
 #TODO - Should take into account the module length, currently only module size
 calculateModuleLeadership <- function(semester, moduleSize, npar=TRUE,print=TRUE){
 		
 	small <- 25
 	medium <- 75
 		
-	#cat ("\n module size: ", moduleSize, "\n")	
+        #cat ("\n module size: ", moduleSize, "\n")
 	
 	if (as.numeric(moduleSize) < small) {
 		return (1)
-	}else if ((as.numeric(moduleSize) > small) & (as.numeric(moduleSize) < medium)){
+	}else if ((as.numeric(moduleSize) >= small) & (as.numeric(moduleSize) < medium)){
 		return (1.5)
 	}else{
 		return (2)
 	}
 }
 
+
+#Function for removing leading and trailing spaces from names
+removeLeadingAndTrailingSpaces <- function (name){
+    
+    nameWithoutSpaces < - gsub("^\\s+|\\s+$", "", name)
+    return nameWithoutSpaces
+}
 
 allocationSummary <- function (){
     
@@ -106,7 +114,6 @@ allocationSummary <- function (){
     }
     
     cat ("\n################################################################### \n")
-
     
 }
 
@@ -149,6 +156,7 @@ for (i in 1: nrow (staffNames)){
 				namesList <- unlist(strsplit(toString(allocatedStaffNamesOnTimetable[j,1]), "/"))
 
 				for (k in 1: length(namesList)){
+                    #   cat ("\nvalue of k is", k, " size of the list: ", length(namesList))
 				
 					if (toString(staffNames[i,1]) == namesList[k]){
 						if (toString(timetable[j:j,4]) == "Lecture"){
@@ -157,7 +165,7 @@ for (i in 1: nrow (staffNames)){
 							normalizedHours <- calculateLectureHours (toString(timetable[j:j,5]), ((as.numeric(toString(timetable[j:j,9])))*24)/length(namesList)) 
 							totalAllocation <- totalAllocation + normalizedHours							
 
-								cat ("Shared current lec allocation: ", normalizedHours, "total allocation: ",totalAllocation, " module code: " , toString(timetable[j:j,2]), "module size:", (as.numeric(toString(timetable[j:j,11]))), " ;semester: ", toString(timetable[j:j,5]), "; hours: ", (as.numeric(toString(timetable[j:j,9])))*24, "module leadership: ", moduleLeadership, "\n")
+								cat ("Shared current lec allocation: ", normalizedHours, "total allocation: ",totalAllocation, " module code: " , toString(timetable[j:j,2]), "module size:", (as.numeric(toString(timetable[j:j,11]))), " ;semester: ", toString(timetable[j:j,5]), "; hours: ", (as.numeric(toString(timetable[j:j,9])))*24, "\n")
 
 
 							# calculate module leadership, only the first person is the module leader 
@@ -174,7 +182,7 @@ for (i in 1: nrow (staffNames)){
 
 							cat ("Shared current tut allocation: ", normalizedHours, "total allocation: ",totalAllocation, " module code: " ,toString(timetable[j:j,2]),  "module size:", (as.numeric(toString(timetable[j:j,11]))), " ;semester: ", toString(timetable[j:j,5]), "; hours: ", (as.numeric(toString(timetable[j:j,9])))*24, "\n")				
 						}
-						
+                    # match the joint lecturer, not further entries on the list required
 					break	
 					}
 				}				
@@ -183,14 +191,16 @@ for (i in 1: nrow (staffNames)){
 		
 	}
 	
+    
 	totalAllocation <- totalAllocation + totalModuleLeadership;
- 	cat (" Total Allocation time with module leadership for: ",toString(staffNames[i,1]), " is: ", totalAllocation, "\n")
+    totalAllocationWithoutML <-totalAllocation - totalModuleLeadership;
+    
+ 	cat (" Total face-to-face time allocation for :'", toString(staffNames[i,1]), "' with module leadership (",totalModuleLeadership, ") and teaching time (",totalAllocationWithoutML,") is: ", totalAllocation, "\n")
     
     staffAllocationMap$insert(toString(staffNames[i,1]),totalAllocation)
 
     totalAllocation <- 0
 	totalModuleLeadership <-0
-    
   		
 }
 
