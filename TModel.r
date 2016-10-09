@@ -101,6 +101,7 @@ removeLeadingAndTrailingSpaces <- function (name){
     return nameWithoutSpaces
 }
 
+# Funtion to print the teaching load summary
 allocationSummary <- function (){
     
     cat ("\n############################### Summary ########################### \n")
@@ -118,9 +119,9 @@ allocationSummary <- function (){
 }
 
 
+#Main body of the script
 #TODO -- Not very efficient algorithm, improve the algorith from 0(N^2) to (NLogN) 
 #IMPROVEMENT -- consider using HashMAP
-
 
 for (i in 1: nrow (staffNames)){
 	print (toString(staffNames[i,1]))
@@ -156,7 +157,6 @@ for (i in 1: nrow (staffNames)){
 				namesList <- unlist(strsplit(toString(allocatedStaffNamesOnTimetable[j,1]), "/"))
 
 				for (k in 1: length(namesList)){
-                    #   cat ("\nvalue of k is", k, " size of the list: ", length(namesList))
 				
 					if (toString(staffNames[i,1]) == namesList[k]){
 						if (toString(timetable[j:j,4]) == "Lecture"){
@@ -188,7 +188,6 @@ for (i in 1: nrow (staffNames)){
 				}				
 			}
 		}
-		
 	}
 	
     
