@@ -20,11 +20,11 @@ home.dr<- getwd()
 setwd("/Users/mufy/Dropbox/teaching/UEL/2015-2016/timetable")
 
 #Change the filename if changes or updated
-file.name <- "CSI 2016-17-v9-final.xlsx"
+file.name <- "CSI 2016-17-v10.xlsx"
 sheet.name <- "ML"
 
 tAllocation <- read.xlsx(file.name, 4, header=FALSE, keepFormulas=FALSE, startRow = 2, endRow =25)
-timetable <- read.xlsx(file.name, 3, header=FALSE, keepFormulas=FALSE, startRow = 2, endRow =187)
+timetable <- read.xlsx(file.name, 3, header=FALSE, keepFormulas=FALSE, startRow = 2, endRow =207)
 
 # Get the current list of staff names 
 staffNames <- tAllocation[1]
@@ -38,6 +38,9 @@ allocatedStaffNamesOnTimetable <- timetable[12];
 #TODO - Find a way to initilize
 staffAllocationMap <-  hashmap("","")
 staffAllocationMap$erase("")
+
+clinicTime <- 2
+
 
 
 # Function for calculating the teaching hours
@@ -53,7 +56,15 @@ calculateLectureHours <- function(semester, hours, npar=TRUE,print=TRUE){
 	#	cat ("\n hour calc: ", hourCalc, "\n")
 		return (hourCalc)
 		
-	}else{
+        #Calculation for blocked mode
+    }else if ((toString(semester) == "1B") | (toString(semester) == "2B")){
+       
+       cat ("\n calculating blocked mode lect hours : ", hours, "\n")
+       
+       hourCalc =	(2* hours * 5)/43
+       return (hourCalc)
+    }
+    else{
 		hourCalc =	(2*hours * 12)/43
 	#	cat ("\n hour calc: ", hourCalc, "\n")
 		return (hourCalc)
@@ -68,8 +79,16 @@ calculateTutorialHours <- function(semester, hours, npar=TRUE,print=TRUE){
 	
 	if (semester == "1 & 2"){		
 		hourCalc <-	(1.5* hours * 24)/43
-	}else{
+        
+	}else if ((toString(semester) == "1B") | (toString(semester) == "2B")){
+     
+        cat ("\n calculating blocked mode tutorial hours : ", hours, "\n")
+     
+        hourCalc <-	(1.5* hours * 5)/43
+    
+    }else{
 		hourCalc <-	(1.5* hours * 12)/43
+        
 	}
 	
 	return (hourCalc)
@@ -81,25 +100,47 @@ calculateModuleLeadership <- function(semester, moduleSize, npar=TRUE,print=TRUE
 		
 	small <- 25
 	medium <- 75
-		
-        #cat ("\n module size: ", moduleSize, "\n")
+    
+    sHour <- 1
+    mHour <- 1.5
+    lHour <- 2
+    
+    
+    #cat ("\n module size: ", moduleSize, " semester: ", semester , "\n")
 	
 	if (as.numeric(moduleSize) < small) {
-		return (1)
+     
+     if ((semester == "1 & 2") | (semester == "1B") | (semester == "2B")){
+            return (sHour * 1)
+        }else{
+        
+            return (sHour)
+        }
+        
 	}else if ((as.numeric(moduleSize) >= small) & (as.numeric(moduleSize) < medium)){
-		return (1.5)
-	}else{
-		return (2)
-	}
+    
+    if ((semester == "1 & 2") | (semester == "1B") | (semester == "2B")){
+            return (mHour * 1)
+        }else{
+            return (mHour)
+        }
+    }else{
+
+        if ((semester == "1 & 2") | (semester == "1B") | (semester == "2B")){
+            return (lHour * 1)
+        }else{
+            return (lHour)
+        }
+    }
 }
 
 
 #Function for removing leading and trailing spaces from names
-removeLeadingAndTrailingSpaces <- function (name){
+#removeLeadingAndTrailingSpaces <- function (name){
     
-    nameWithoutSpaces < - gsub("^\\s+|\\s+$", "", name)
-    return nameWithoutSpaces
-}
+#    nameWithoutSpaces < - gsub("^\\s+|\\s+$", "", name)
+#    return nameWithoutSpaces
+#}
 
 # Funtion to print the teaching load summary
 allocationSummary <- function (){
@@ -191,7 +232,7 @@ for (i in 1: nrow (staffNames)){
 	}
 	
     
-	totalAllocation <- totalAllocation + totalModuleLeadership;
+	totalAllocation <- totalAllocation + totalModuleLeadership + clinicTime;
     totalAllocationWithoutML <-totalAllocation - totalModuleLeadership;
     
  	cat (" Total face-to-face time allocation for :'", toString(staffNames[i,1]), "' with module leadership (",totalModuleLeadership, ") and teaching time (",totalAllocationWithoutML,") is: ", totalAllocation, "\n")
