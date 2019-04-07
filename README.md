@@ -6,4 +6,4 @@ This project models a new timetable for the University.  It is designed to utili
 ## New Timetable Model
 ![alt text](https://github.com/mufajjul/TimetableModel/blob/master/timetabling-model.png)
 
-This model takes into account:lecturing effort, tutorial effort, prep time, supervision, research, etc. and calculates staff alloation time based on full academic calender.
+This model takes into account the lecturing effort, tutorial effort, prep time, supervision, research, etc. and calculates staff alloation time based on a full academic calender.
